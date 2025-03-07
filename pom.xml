@@ -6,7 +6,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>java-maven-app</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.8</version>
 
     <build>
         <plugins>
@@ -33,6 +33,16 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version> <!-- Or use the latest version -->
+                <configuration>
+                    <includes>
+                        <include>**/AppTest.java</include> <!-- Ensure Surefire knows which test classes to run -->
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -46,7 +56,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
 
