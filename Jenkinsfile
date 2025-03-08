@@ -1,70 +1,50 @@
-def gv
-
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
+
+    environment {
+        // Define environment variables here (if needed)
+        // Example: MY_ENV_VAR = 'value'
     }
+
     stages {
-        stage('increment version') {
+        stage('Build') {
             steps {
                 script {
-                    echo 'incrementing app version...'
-                    sh 'mvn build-helper:parse-version versions:set \
-                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
-                        versions:commit'
-                    def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
-                    def version = matcher[0][1]
-                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
+                    // This is where you can add build commands (e.g., compile your application)
+                    echo 'Building the application...'
+                    // Example: sh 'make build' or any other build tool you use
                 }
             }
         }
-        stage('build app') {
-            steps {
-                script {
-                    echo 'building the application...'
-                    sh 'mvn clean package'
-                }
-            }
-        }
-        stage('build image') {
-            steps {
-                script {
-                    echo "building the docker image..."
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]){
-                        sh "docker build -t nanatwn/demo-app:${IMAGE_NAME} ."
-                        sh 'echo $PASS | docker login -u $USER --password-stdin'
-                        sh "docker push nanatwn/demo-app:${IMAGE_NAME}"
-                    }
-                }
-            }
-        }
-        stage('deploy') {
-            steps {
-                script {
-                    echo 'deploying docker image...'
-                }
-            }
-        }
-        stage('commit version update'){
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'gitlab-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]){
-                        sh 'git config --global user.email "jenkins@example.com"'
-                        sh 'git config --global user.name "jenkins"'
 
-                        sh 'git status'
-                        sh 'git branch'
-                        sh 'git config --list'
-
-                        sh "git remote set-url origin https://${USER}:${PASS}@gitlab.com/twn-devops-bootcamp/latest/08-jenkins/java-maven-app.git"
-                        sh 'git add .'
-                        sh 'git commit -m "ci: version bump"'
-                        sh 'git push origin HEAD:jenkins-jobs'
-                    }
+        stage('Test') {
+            steps {
+                script {
+                    // Add your testing commands here (e.g., unit tests)
+                    echo 'Running tests...'
+                    // Example: sh 'npm test' or any test command for your project
                 }
             }
-         }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Deployment steps go here
+                    echo 'Deploying application...'
+                    // Example: sh 'deploy.sh' or any deployment command for your environment
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
+
